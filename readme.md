@@ -1,6 +1,6 @@
 # Deep learning the cis-regulatory code for gene expression in selected model plants
 ### Generating non-homologous validation set
-These are the steps taken to generate validation sets with non-homologous in the
+These are the steps taken to generate non-homologous training and validation sets
 training set.
 1. Download protein fasta file from Ensembl Plants
 ```shell
