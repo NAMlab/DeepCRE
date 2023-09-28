@@ -1,39 +1,55 @@
-# Deep learning the cis-regulatory code for gene expression in selected model plants
-### Generating non-homologous validation set
-These are the steps taken to generate non-homologous training and validation sets
-1. Download protein fasta file from Ensembl Plants
+## Deep learning the cis-regulatory code for gene expression in selected model plants
+Please follow the steps below to reproduce the results from our work.
+1. Download this repository.
+2. Change directory into the **model** subdirectory, run the *fetch_genomes_and_annotation.sh* script. Firstly, this
+will create 3 new subdirectories: genomes, gene_models, tpm_counts. Then, it will download genomes and gene models
+for 4 plant species, uncompress them and store them in genomes and gene models subdirectories respectively.
+3. Download expression counts for the project from supplementary data from publication and save these files 
+within the tpm_counts subdirectory. NB: you should have 8 files, corresponding to 4 plant species and 2 tissues.
+For example, for *Arabidopsis thaliana* you would have arabidopsis_counts.csv and arabidopsis_root_counts.csv 
+for leaf and root tissues respectively.
+
+### Training convolutional neural networks
+- To train SSR and SSC models, run the *train_ssr_ssc_models_leaf.py* and *train_ssr_ssc_models_root.py* for
+leaf and root tissues respectively.
+- Train the MSR models using *train_msr_models_leaf.py* and *train_msr_models_root.py*.
+
+Only after training CNN models can you run the scripts below that compute importance scores and generate motifs. Also 
+note that deepLIFT which is used to compute importance scores is currently only compatible with tensorflow 1.x. So if
+you build models with tensorflow 2.x, you won't be able to use these scripts.
+### Computing importance scores and obtaining motifs
+- Run the *motif_discovery_...* scripts for respective tissue and models.
+- Then run *extract_motifs_ssr.py* or *extract_motifs_msr.py* to get the motifs out of the output produced by
+modisco.
+
+### Random forest models
+- Firstly, create the features using the *create_generic_feature.py* script.
+- Then run either *random_forest_msr.py* or *random_forest_ssr.py* for MSR and SSR models respectively.
+
+### Investigate effect of different sequence lengths
+To investigate the effects of different UTR or promoter sequence lengths, use the *effect_of_different_...*
+scripts. These scripts will build several models based on different length specified within the scripts.
+
+
+#### Generating validation_genes.pickle file
+This file contains information of genes that have homologs only within their chromosomes, such that when we use
+chromosome level cross validation for training, we mitigate the effects of homologs leaking information between our
+training and test set. While I provide the pickle file used for this project, one can generate this themselves  by
+firstly going into the data directory that sits as a sibling directory to model directory, then running the commands
+below in the terminal:
+
 ```shell
 wget https://ftp.ebi.ac.uk/ensemblgenomes/pub/release-52/plants/fasta/arabidopsis_thaliana/pep/Arabidopsis_thaliana.TAIR10.pep.all.fa.gz
 ```
 ```shell
 gunzip Arabidopsis_thaliana.TAIR10.pep.all.fa.gz
 ```
-2. Create protein blast database and perform an all by all blast
 ```shell
 makeblastdb -in Arabidopsis_thaliana.TAIR10.pep.all.fa -dbtype prot -title arabidopsis -parse_seqids -hash_index -out arabidopsis
 ```
 ```shell
 blastp -db arabidopsis -query Arabidopsis_thaliana.TAIR10.pep.all.fa  -out Blast_ara_to_ara -outfmt 6
 ```
-3. USE the python script `produce_non_homologous_val_sets.py` to create non-homologous validation set of gene_ids
-
-### Mappping reads to reference transcriptomes using kallisto
-One can use the helper script `map_reads.py` to automatically download fastq files from NCBI SRA and map to a reference
-transcriptome. This script however assumes that user has created the index file with `kallisto index`.
-
-Once mapping is down with kallisto, the helper r script `process_kallisto.R` can be used to produce a file with tpm 
-counts across sra experiments
-
-### Training CNN models and getting motifs
-1. To train the CNN models for SSR and MSR please use `train_low_high_expressed_models.py` and 
-`train_low_high_expressed_multi_species_models.py` respectively
-
-2. Once models are trained, run `motif_discovery_ssr.py` and `motif_discovery_msr.py`to run deeplift
-and generate motifs with modisco
-
-3. run `extract_motifs_ssr.py` and `extract_motifs_msr.py` to get the motfs produced by modisco from
-the h5 files, for further comparison with JASPAR motifs
-
-### Training random forest classifiers
-1. Build tabular dataset of generic features using `create_generic_features.py`
-2. run `random_forest_ssr.py` and `random_forest_msr.py` to train binary and multi-taks classifiers
+The above assume that you have blast installed on your computer.
+The above 4 lines are just for *Arabidopsis thaliana* but should be edited and repeated for the other 4 species. Once 
+this is done, run the *produce_non_homologous_val_sets.py* script.
