@@ -14,7 +14,7 @@ os.environ['TF_FORCE_GPU_ALLOW_GROWTH'] = 'true'
 
 gene_model = pd.read_csv('gene_models/zea_sol_ara_sor_52.gtf', sep='\t')
 gene_model['specie'] = [x.split('_')[0] for x in gene_model['Chromosome']]
-genes_labels = pd.read_csv('tpm_counts/zea_sol_ara_sor.csv', sep='\t', index_col=0)
+genes_labels = pd.read_csv('tpm_counts/zea_sol_ara_sor.csv', index_col=0)
 genome = Fasta('genomes/zea_sol_ara_sor_dna.fa',  as_raw=True, sequence_always_upper=True, read_ahead=10000)
 
 
