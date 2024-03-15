@@ -1,4 +1,7 @@
 ## Deep learning the cis-regulatory code for gene expression in selected model plants
+
+[![DOI](https://zenodo.org/badge/632932657.svg)](https://zenodo.org/doi/10.5281/zenodo.10822013)
+
 Please follow the steps below to reproduce the results from our work.
 1. Download this repository.
 2. Change directory into the **model** subdirectory, run the *fetch_genomes_and_annotation.sh* script. Firstly, this
